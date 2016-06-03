@@ -5,6 +5,16 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+/* Require mongoose */
+var mongoose = require('mongoose');
+
+/* Add mongoose models */
+require('./models/Users');
+
+/* Add connection to mongodb database.  In this case we are
+hosting the database on the same server as the app */
+mongoose.connect('mongodb://localhost/node-permissions');
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
