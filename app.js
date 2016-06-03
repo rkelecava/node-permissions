@@ -5,6 +5,13 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+/* Check for required system environment variable(s)
+If variables are not set in the system include the 
+env.js file (for development only) */
+if(!process.env.JWT_SECRET) {
+  var env = require('./env.js');
+}
+
 /* Require mongoose */
 var mongoose = require('mongoose');
 
