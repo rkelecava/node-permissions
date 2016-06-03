@@ -15,8 +15,14 @@ if(!process.env.JWT_SECRET) {
 /* Require mongoose */
 var mongoose = require('mongoose');
 
+/* Require passport */
+var passport = require('passport');
+
 /* Add mongoose models */
 require('./models/Users');
+
+/* Include passport configuration */
+require('./config/passport');
 
 /* Add connection to mongodb database.  In this case we are
 hosting the database on the same server as the app */
@@ -38,6 +44,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+/* Initialize passport */
+app.use(passport.initialize());
 
 app.use('/', routes);
 app.use('/users', users);
