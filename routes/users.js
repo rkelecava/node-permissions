@@ -39,6 +39,23 @@ var checkAdmin = function (req, res, next) {
 	return next(err);
 };
 
+// Middleware to check if a user has user permissions
+var checkUser = function (req, res, next) {
+
+	/* Loop through the user roles from the JWT payload 
+	if 'user' or 'admin' role is found, continuing moving forward.
+		If not, return error w/ status 401 */
+	for (var i=0; i<req.payload.roles.length; i++) {
+		if (req.payload.roles[i]=='admin' || req.payload.roles[i]=='user') {
+			return next();
+		}
+	}
+
+	var err = new Error('You do not have the required permissions to access this route');
+	err.status = 401;
+	return next(err);
+};
+
 /************************/
 /* End of Middleware */
 /************************/
@@ -52,8 +69,17 @@ var checkAdmin = function (req, res, next) {
 User must be authenticated AND they must have 'admin' permission
 to access the route */
 /*************************/
-router.get('/test', auth, checkAdmin, function (req, res, next) {
-	res.json({message: 'If you see this, you are authenticated', username: req.payload.username, id: req.payload._id, roles: req.payload.roles });
+router.get('/testAdmin', auth, checkAdmin, function (req, res, next) {
+	res.json({message: 'If you see this, you are authenticated w/ admin permissions', username: req.payload.username, id: req.payload._id, roles: req.payload.roles });
+});
+
+/*************************/
+/* Route to test user permissions.
+User must be authenticated AND they must have at least 'user' permission
+to access the route */
+/*************************/
+router.get('/testUser', auth, checkUser, function (req, res, next) {
+	res.json({message: 'If you see this, you are authenticated w/ at least user permissions', username: req.payload.username, id: req.payload._id, roles: req.payload.roles });
 });
 
 /*********************/
