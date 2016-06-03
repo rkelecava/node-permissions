@@ -3,8 +3,12 @@ var app = angular.module('app',['ui.router']);
 app.factory('auth', [
 	'$http',
 	'$window',
-	function ($http, $window) {
-		var auth = {};
+	'$state',
+	'$stateParams',
+	function ($http, $window, $state, $stateParams) {
+		var auth = {
+			roles: []
+		};
 
 		auth.saveToken = function (token) {
 			$window.localStorage['acl-token'] = token;
@@ -26,14 +30,49 @@ app.factory('auth', [
 			}
 		};
 
+		auth.hasRole = function (role) {
+			for (var i=0; i<auth.roles.length; i++) {
+				if (role == 'user') {
+					if (auth.roles[i] == role || auth.roles[i] == 'admin') {
+						return true;
+					}
+				} else {
+					if (auth.roles[i] == role) {
+						return true;
+					}
+				}
+
+			}
+
+			return false;
+		};
+
 		auth.currentUser = function () {
 			if (auth.isLoggedIn()) {
 				var token = auth.getToken();
 				var payload = JSON.parse($window.atob(token.split('.')[1]));
 
+				angular.copy(payload.roles, auth.roles);
+
 				return payload.username;
 			}
 		};
+
+		auth.getRoles = function () {
+			if (auth.isLoggedIn()) {
+				var token = auth.getToken();
+				var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+				return $http.get('/users/' + payload._id + '/roles')
+					.success(function (data) {
+						angular.copy(data, auth.roles);
+					});
+			} else {
+				angular.copy([], auth.roles);
+			}
+
+		};
+
 
 		auth.logIn = function (user) {
 			return $http.post('/users/login', user)
@@ -44,7 +83,10 @@ app.factory('auth', [
 
 		auth.logOut = function () {
 			$window.localStorage.removeItem('acl-token');
+			auth.roles = [];
+			$state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: true });
 		};
+
 
 		return auth;
 	}
@@ -78,8 +120,10 @@ app.config([
 	}
 ]);
 
-app.controller('MainCtrl',['$scope', function ($scope) {
-
+app.controller('MainCtrl',['$scope', 'auth', function ($scope, auth) {
+	$scope.roles = auth.roles;
+	$scope.isLoggedIn = auth.isLoggedIn;
+	$scope.hasRole = auth.hasRole;
 }]);
 
 app.controller('AuthCtrl', [

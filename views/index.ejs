@@ -34,6 +34,29 @@
 		<div class="page-header">
 			<h1>ACL</h1>
 		</div>
+		<strong>Roles: </strong>{{roles | json}}
+		<div class="row">
+			<div class="col-md-4">
+				<h3>No Auth</h3>
+				Anyone can see this section
+			</div>
+			<div class="col-md-4">
+				<h3>Basic User</h3>
+				<div ng-show="isLoggedIn()">
+					<span ng-show="hasRole('user')">You are authenticated and have the "user" role.</span>
+					<span ng-hide="hasRole('user')">Only authenticated users with the role of "user" can see this section</span>
+				</div>
+				<span ng-hide="isLoggedIn()">Only authenticated users with the "user" role can see this section</span>
+			</div>
+			<div class="col-md-4">
+				<h3>Admin</h3>
+				<div ng-show="isLoggedIn()">
+					<span ng-show="hasRole('admin')">You are authenticated and have the "admin" role.</span>
+					<span ng-hide="hasRole('admin')">Only authenticated users with the role of "admin" can see this section</span>
+				</div>
+				<span ng-hide="isLoggedIn()">Only authenticated users with the "admin" role can see this section</span>
+			</div>
+		</div>
 	</script>
 	<script type="text/ng-template" id="_login.html">
 		<div class="page-header">
