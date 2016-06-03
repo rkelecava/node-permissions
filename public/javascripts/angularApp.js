@@ -45,6 +45,8 @@ app.factory('auth', [
 		auth.logOut = function () {
 			$window.localStorage.removeItem('acl-token');
 		};
+
+		return auth;
 	}
 ]);
 
@@ -59,6 +61,19 @@ app.config([
 				url: '/home',
 				templateUrl: '_home.html',
 				controller: 'MainCtrl'
+			})
+			.state('login', {
+				url: '/login',
+				templateUrl: '_login.html',
+				controller: 'AuthCtrl',
+				onEnter: [
+					'$state',
+					'auth',
+					function ($state, auth) {
+						if (auth.isLoggedIn()) {
+							$state.go('home');
+						}
+					}]
 			});
 	}
 ]);
@@ -66,3 +81,31 @@ app.config([
 app.controller('MainCtrl',['$scope', function ($scope) {
 
 }]);
+
+app.controller('AuthCtrl', [
+	'$scope',
+	'$state',
+	'auth',
+	function ($scope, $state, auth) {
+		$scope.user = {};
+
+		$scope.logIn = function () {
+			auth.logIn($scope.user)
+				.error(function (error) {
+					$scope.error = error;
+				}).then(function () {
+					$state.go('home');
+				});
+		};
+	}
+]);
+
+app.controller('NavCtrl', [
+	'$scope',
+	'auth',
+	function ($scope, auth) {
+		$scope.isLoggedIn = auth.isLoggedIn;
+		$scope.currentUser = auth.currentUser;
+		$scope.logOut = auth.logOut;
+	}
+]);
