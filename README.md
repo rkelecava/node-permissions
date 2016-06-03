@@ -1,0 +1,1 @@
+This project will attempt to build an ACL authentication system using the MEAN stack with JWT.  By providing middleware that checks for different permission levels ('guest', 'user', 'admin', etc), additional granular control over route access will be achieved.
