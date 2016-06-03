@@ -7,20 +7,39 @@
 
 	</head>
 	<body ng-app="app">
+		<nav class="navbar navbar-default" ng-controller="NavCtrl">
+			<div class="container-fluid">
+	          	<div class="navbar-header">
+	            	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+	              		<span class="sr-only">Toggle navigation</span>
+	              		<span class="icon-bar"></span>
+	              		<span class="icon-bar"></span>
+	              		<span class="icon-bar"></span>
+	            	</button>
+	            	<a class="navbar-brand" href="/#/home">ACL</a>
+	          	</div>
+	          	<div id="navbar" class="navbar-collapse collapse">
+	            	<ul class="nav navbar-nav">
+	              		<li><a href="/#/home">Home</a></li>
+		  				<li ng-show="isLoggedIn()">
+		  					<a href="/#/admin">Admin</a>
+		  				</li>
+	            	</ul>
+	            	<ul class="nav navbar-nav navbar-right">
+		  				<li ng-show="isLoggedIn()">
+		  					<a>{{currentUser()}}</a>
+		  				</li>
+		  				<li ng-show="isLoggedIn()">
+		  					<a href="" ng-click="logOut()">Log Out</a>
+		  				</li>
+		  				<li ng-hide="isLoggedIn()">
+		  					<a href="/#/login">Log In</a>
+		  				</li>
+	            	</ul>
+	          	</div><!--/.nav-collapse -->
+        	</div><!--/.container-fluid -->
+      	</nav>
 		<div class="container">
-	  		<nav class="navbar navbar-default pull-right" ng-controller="NavCtrl">
-	  			<ul class="nav navbar-nav">
-	  				<li ng-show="isLoggedIn()">
-	  					<a>{{currentUser()}}</a>
-	  				</li>
-	  				<li ng-show="isLoggedIn()">
-	  					<a href="" ng-click="logOut()">Log Out</a>
-	  				</li>
-	  				<li ng-hide="isLoggedIn()">
-	  					<a href="/#/login">Log In</a>
-	  				</li>
-	  			</ul>
-	  		</nav>
 			<div class="col-md-6 col-md-offset-3">
 				<ui-view></ui-view>
 			</div>
@@ -80,6 +99,12 @@
 
 			<button type="submit" class="btn btn-primary">Log In</button>
 		</form>
+	</script>
+	<script type="text/ng-template" id="_admin.html">
+		<div class="page-header">
+			<h1>Acl</h1>
+		</div>
+		<h3>Administration</h3>
 	</script>
 	</body>
 </html>

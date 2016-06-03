@@ -116,6 +116,19 @@ app.config([
 							$state.go('home');
 						}
 					}]
+			})
+			.state('admin', {
+				url: '/admin',
+				templateUrl: '_admin.html',
+				controller: 'AdminCtrl',
+				onEnter: [
+					'$state',
+					'auth',
+					function ($state, auth) {
+						if (!auth.isLoggedIn() && !auth.hasRole('admin')) {
+							$state.go('login');
+						}
+					}]
 			});
 	}
 ]);
@@ -151,5 +164,15 @@ app.controller('NavCtrl', [
 		$scope.isLoggedIn = auth.isLoggedIn;
 		$scope.currentUser = auth.currentUser;
 		$scope.logOut = auth.logOut;
+	}
+]);
+
+
+app.controller('AdminCtrl', [
+	'$scope',
+	'auth',
+	function ($scope, auth) {
+		$scope.isLoggedIn = auth.isLoggedIn;
+		$scope.hasRole = auth.hasRole;
 	}
 ]);
