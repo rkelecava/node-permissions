@@ -171,6 +171,40 @@ router.put('/:user', function (req, res, next) {
 	});
 });
 
+/************************/
+/* GET a user's roles */
+/*******************************/
+router.get('/:user/roles', function (req, res, next) {
+
+	// Return the user from the route parameter
+	return res.json(req.user.roles);
+});
+
+/*************************/
+/* Revoke a role from a user */
+/*******************************/
+router.put('/:user/roles', function (req, res, next) {
+
+	User.findById(req.user._id, function (err, user) {
+
+		// Add role if set in form
+		if (req.body.removeRole == 'yes' && req.body.role) { 
+			var index = user.roles.indexOf(req.body.role);
+			user.roles.splice(index, 1);
+		}
+
+		// Save changes to user using the mongoose save method
+		user.save(function (err) {
+			// Return any errors
+			if (err) { return next(err); }
+
+			/* If no errors, generate a new JWT(jsonwebtoken) for the
+			newly added user using the generateJWT method defined in the User Schema */
+			return res.json({token: user.generateJWT()});
+		});
+	});
+});
+
 /**************************/
 /* End of Routes */
 /**************************/
