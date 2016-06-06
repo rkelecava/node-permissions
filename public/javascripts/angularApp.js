@@ -7,7 +7,9 @@ app.factory('auth', [
 	'$stateParams',
 	function ($http, $window, $state, $stateParams) {
 		var auth = {
-			roles: []
+			roles: [],
+			users: [],
+			message: []
 		};
 
 		auth.saveToken = function (token) {
@@ -47,6 +49,15 @@ app.factory('auth', [
 			return false;
 		};
 
+		auth.getAllUsers = function () {
+			if (auth.isLoggedIn && auth.hasRole('admin')) {
+				return $http.get('/users')
+					.success(function (data) {
+					angular.copy(data, auth.users);
+				});
+			}
+		};
+
 		auth.currentUser = function () {
 			if (auth.isLoggedIn()) {
 				var token = auth.getToken();
@@ -71,6 +82,14 @@ app.factory('auth', [
 				angular.copy([], auth.roles);
 			}
 
+		};
+
+		auth.deleteUser = function (id) {
+			return $http.delete('/users/' + id)
+				.success(function (data) {
+					angular.copy(data, auth.message);
+					$state.transitionTo($state.current, $stateParams, { reload: true, inherit: false, notify: true });
+				});
 		};
 
 
@@ -121,12 +140,17 @@ app.config([
 				url: '/admin',
 				templateUrl: '_admin.html',
 				controller: 'AdminCtrl',
+				resolve: {
+					authPromise: ['auth', function (auth) {
+						return auth.getAllUsers();
+					}]
+				},
 				onEnter: [
 					'$state',
 					'auth',
 					function ($state, auth) {
-						if (!auth.isLoggedIn() && !auth.hasRole('admin')) {
-							$state.go('login');
+						if (!auth.isLoggedIn() || !auth.hasRole('admin')) {
+							$state.go('home');
 						}
 					}]
 			});
@@ -135,6 +159,7 @@ app.config([
 
 app.controller('MainCtrl',['$scope', 'auth', function ($scope, auth) {
 	$scope.roles = auth.roles;
+	$scope.message = auth.message;
 	$scope.isLoggedIn = auth.isLoggedIn;
 	$scope.hasRole = auth.hasRole;
 }]);
@@ -162,6 +187,7 @@ app.controller('NavCtrl', [
 	'auth',
 	function ($scope, auth) {
 		$scope.isLoggedIn = auth.isLoggedIn;
+		$scope.hasRole = auth.hasRole;
 		$scope.currentUser = auth.currentUser;
 		$scope.logOut = auth.logOut;
 	}
@@ -172,7 +198,10 @@ app.controller('AdminCtrl', [
 	'$scope',
 	'auth',
 	function ($scope, auth) {
+		$scope.users = auth.users;
+		$scope.message = auth.message;
 		$scope.isLoggedIn = auth.isLoggedIn;
 		$scope.hasRole = auth.hasRole;
+		$scope.deleteUser = auth.deleteUser;
 	}
 ]);

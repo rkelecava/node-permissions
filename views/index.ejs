@@ -22,7 +22,7 @@
 	            	<ul class="nav navbar-nav">
 	              		<li><a href="/#/home">Home</a></li>
 		  				<li ng-show="isLoggedIn()">
-		  					<a href="/#/admin">Admin</a>
+		  					<a ng-show="hasRole('admin')" href="/#/admin">Admin</a>
 		  				</li>
 	            	</ul>
 	            	<ul class="nav navbar-nav navbar-right">
@@ -45,6 +45,8 @@
 			</div>
 		</div>
 
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.10/angular.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
 	<script src="/javascripts/angularApp.js"></script>
@@ -54,6 +56,7 @@
 			<h1>ACL</h1>
 		</div>
 		<strong>Roles: </strong>{{roles | json}}
+		<div ng-show="message">{{message.message}}</div>
 		<div class="row">
 			<div class="col-md-4">
 				<h3>No Auth</h3>
@@ -102,9 +105,31 @@
 	</script>
 	<script type="text/ng-template" id="_admin.html">
 		<div class="page-header">
-			<h1>Acl</h1>
+			<h1>Acl (Administration)</h1>
 		</div>
-		<h3>Administration</h3>
+		<div ng-show="hasRole('admin')">
+			<h3>User List</h3>
+			<div ng-show="message">{{message.message}}</div>
+			<div class="row">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Username</th>
+							<th>Roles</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="user in users | orderBy:username">
+							<td>{{user.username}}</td>
+							<td>{{user.roles | json }}</td>
+							<td><button class="btn btn-danger" ng-click="deleteUser(user._id)"><span class="glyphicon glyphicon-trash"></span></button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<span ng-hide="hasRole('admin')">You need to have administrative access to view this page</span>
 	</script>
 	</body>
 </html>
